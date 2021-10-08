@@ -12,7 +12,6 @@
 #include "filer_item.h"
 #include "media_file.h"
 #include "highlight.h"
-#include "scrap_view.h"
 
 class Main;
 
@@ -23,8 +22,6 @@ public:
     Filer(Main *main, const std::string &path, const c2d::FloatRect &rect);
 
     void setMediaInfo(const MediaFile &target, const MediaInfo &mediaInfo);
-
-    void setScrapInfo(const c2d::Io::File &target, const std::vector<pscrap::Movie> &movies);
 
     virtual bool getDir(const std::string &path);
 
@@ -53,7 +50,6 @@ private:
     std::vector<FilerItem *> items;
     std::vector<MediaFile> files;
     Highlight *highlight;
-    ScrapView *scrapView;
     float item_height;
     int item_max;
     int item_index = 0;

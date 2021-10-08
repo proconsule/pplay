@@ -14,7 +14,6 @@
 #include "menu_video.h"
 #include "status_box.h"
 #include "status_bar.h"
-#include "scrapper.h"
 #include "io.h"
 #include "usbfs.h"
 
@@ -89,8 +88,6 @@ public:
 
     StatusBar *getStatusBar();
 
-    pplay::Scrapper *getScrapper();
-
     c2d::Io *getIo() override;
 
     float getScaling();
@@ -116,7 +113,6 @@ private:
     Player *player = nullptr;
     MenuMain *menu_main = nullptr;
     MenuVideo *menu_video = nullptr;
-    pplay::Scrapper *scrapper = nullptr;
     unsigned int oldKeys = 0;
     float scaling = 1;
 

@@ -5,7 +5,6 @@
 #include "main.h"
 #include "filer.h"
 #include "utility.h"
-#include "p_search.h"
 
 #define ITEM_HEIGHT 50
 
@@ -14,10 +13,6 @@ using namespace c2d;
 Filer::Filer(Main *m, const std::string &path, const c2d::FloatRect &rect) : Rectangle(rect) {
 
     main = m;
-
-    // force scrap view width to scrapped backdrop width
-    scrapView = new ScrapView(main, {rect.width - 780, 0, 780, rect.height});
-    add(scrapView);
 
     Vector2f size = {rect.width - 670, rect.height - 64};
     // highlight
@@ -52,17 +47,6 @@ void Filer::setMediaInfo(const MediaFile &target, const MediaInfo &mediaInfo) {
     }
 }
 
-void Filer::setScrapInfo(const Io::File &target, const std::vector<pscrap::Movie> &movies) {
-
-    for (size_t i = 0; i < files.size(); i++) {
-        if (files[i].path == target.path) {
-            files[i].movies = movies;
-            dirty = true;
-            break;
-        }
-    }
-}
-
 void Filer::setSelection(int index) {
 
     item_index = index;
@@ -77,20 +61,10 @@ void Filer::setSelection(int index) {
             MediaFile file = files[index_start + i];
             items[i]->setFile(file);
             items[i]->setVisibility(Visibility::Visible);
-            if (!file.movies.empty()) {
-                items[i]->setTitle(file.movies[0].title);
-            }
             // set highlight position
             if (index_start + i == (unsigned int) item_index) {
                 highlight->tweenTo(items[i]->getPosition());
-                if (file.type == Io::Type::File) {
-                    if (!scrapView->isVisible()) {
-                        scrapView->setVisibility(Visibility::Visible);
-                    }
-                    scrapView->setMovie(file);
-                } else {
-                    scrapView->setVisibility(Visibility::Hidden);
-                }
+                
             }
         }
     }
@@ -127,14 +101,12 @@ bool Filer::onInput(c2d::Input::Player *players) {
         if (item_index < 0)
             item_index = (int) (files.size() - 1);
         setSelection(item_index);
-        scrapView->unload();
     } else if (keys & Input::Key::Down) {
         item_index++;
         if (item_index >= (int) files.size()) {
             item_index = 0;
         }
         setSelection(item_index);
-        scrapView->unload();
     } else if (keys & Input::Key::Left) {
         main->getMenuMain()->setVisibility(Visibility::Visible, true);
     } else if (keys & Input::Key::Right) {
@@ -144,16 +116,14 @@ bool Filer::onInput(c2d::Input::Player *players) {
         }
     } else if (keys & Input::Key::Fire1) {
         if (getSelection().type == Io::Type::Directory) {
-            scrapView->unload();
             enter(item_index);
         } else if (pplay::Utility::isMedia(getSelection())) {
             main->getPlayer()->load(files[item_index]);
         }
     } else if (keys & Input::Key::Fire2) {
-        scrapView->unload();
         exit();
     } else if (keys & Input::Key::Fire3) {
-        main->getScrapper()->scrap(path);
+		
     }
 
     return true;
@@ -178,10 +148,7 @@ static bool compare(const MediaFile &a, const MediaFile &b) {
         return false;
     }
 
-    std::string aa = a.movies.empty() ? a.name : a.movies[0].title;
-    std::string bb = b.movies.empty() ? b.name : b.movies[0].title;
-
-    return Utility::toLower(aa) < Utility::toLower(bb);
+    return Utility::toLower(a.name) < Utility::toLower(b.name);
 }
 
 bool Filer::getDir(const std::string &p) {
@@ -202,14 +169,7 @@ bool Filer::getDir(const std::string &p) {
     for (auto &file : _files) {
         MediaFile mf(file, MediaInfo(file));
         if (file.type == Io::Type::File) {
-            pscrap::Search search;
-            std::string scrapPath = pplay::Utility::getMediaScrapPath(file);
-            if (main->getIo()->exist(scrapPath)) {
-                search.load(scrapPath);
-                if (search.total_results > 0) {
-                    mf.movies = search.movies;
-                }
-            }
+            
         }
         files.emplace_back(mf);
     }

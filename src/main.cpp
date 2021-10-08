@@ -6,7 +6,6 @@
 #include "filer.h"
 #include "menu_main.h"
 #include "menu_video.h"
-#include "scrapper.h"
 
 #ifdef __SMB_SUPPORT__
 #include "filers/filer_smb.h"
@@ -139,13 +138,9 @@ Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
     messageBox->getButton(1)->setOutlineThickness(3);
     add(messageBox);
 
-    scrapper = new Scrapper(this);
-    //scrapper->scrap("/home/cpasjuste/dev/multi/videos/");
-    //scrapper->scrap("http://192.168.0.2/files/Videos");
 }
 
 Main::~Main() {
-    delete (scrapper);
     delete (config);
     delete (timer);
     delete (font);
@@ -300,10 +295,6 @@ unsigned int Main::getFontSize(FontSize fontSize) {
 
 StatusBar *Main::getStatusBar() {
     return statusBar;
-}
-
-pplay::Scrapper *Main::getScrapper() {
-    return scrapper;
 }
 
 c2d::Io *Main::getIo() {

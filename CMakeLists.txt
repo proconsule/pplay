@@ -21,7 +21,6 @@ set(BUILD_SMBCLIENT OFF CACHE BOOL "Build with smbclient support")
 # MODULES
 ###################
 add_subdirectory(libcross2d)
-add_subdirectory(pscrap)
 
 ##############
 # pplay
@@ -31,7 +30,7 @@ project(pplay)
 # pplay version
 set(VERSION_MAJOR "3")
 set(VERSION_MINOR "5")
-set(PROJECT_AUTHOR "Cpasjuste")
+set(PROJECT_AUTHOR "Cpasjuste, proconsule fork")
 set(TITLE_ID "PPLAY0001")
 
 set(PPLAY_INC
@@ -41,7 +40,6 @@ set(PPLAY_INC
         src/filer/ftplib
         src/menus
         src/player
-        src/scrapper
         )
 
 file(GLOB PPLAY_SRC
@@ -51,7 +49,6 @@ file(GLOB PPLAY_SRC
         src/filer/ftplib/*.c*
         src/menus/*.c*
         src/player/*.c*
-        src/scrapper/*.c*
         )
 
 set(PPLAY_CFLAGS
@@ -99,7 +96,7 @@ add_executable(${CMAKE_PROJECT_NAME} ${PPLAY_SRC})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${PPLAY_INC})
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE ${PPLAY_CFLAGS})
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
-target_link_libraries(${CMAKE_PROJECT_NAME} cross2d ${MPV_LIBRARIES} pscrap ${PPLAY_LDFLAGS})
+target_link_libraries(${CMAKE_PROJECT_NAME} cross2d ${MPV_LIBRARIES} curl ${PPLAY_LDFLAGS})
 
 #####################
 # targets

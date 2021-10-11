@@ -104,6 +104,9 @@ Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
     items.emplace_back("Usb", "usb.png", MenuItem::Position::Top);
 #endif
     items.emplace_back("Network", "network.png", MenuItem::Position::Top);
+	if(config->getOption(OPT_ENIGMA2_IP)->getString() != "enigma2://127.0.0.1/"){
+		items.emplace_back("Enigma2", "enigma2.png", MenuItem::Position::Top);
+	}
     items.emplace_back("Options", "options.png", MenuItem::Position::Top);
     items.emplace_back("Exit", "exit.png", MenuItem::Position::Bottom);
     menu_main = new MenuMain(this, {-250 * scaling, 0, 250 * scaling, getSize().y}, items);
@@ -213,7 +216,12 @@ void Main::show(MenuType type) {
         usbInit();
         filer->getDir(config->getOption(OPT_UMS_DEVICE)->getString());
 #endif
-    } else {
+    } else if (type == MenuType::Enigma2) {
+#ifdef __SWITCH__
+        usbHsFsExit();
+#endif
+		filer->getDir(config->getOption(OPT_ENIGMA2_IP)->getString());
+	}else {
 #ifdef __SWITCH__
         usbHsFsExit();
 #endif
@@ -307,7 +315,8 @@ int main() {
 
 #ifdef __SWITCH__
 #ifdef NDEBUG
-    socketInitializeDefault();
+	socketInitializeDefault();
+	nxlinkStdio();
 #endif
     appletMainLoop();
     if (appletGetOperationMode() == AppletOperationMode_Console) {
@@ -331,11 +340,9 @@ int main() {
 
 #ifdef __SWITCH__
     usbHsFsExit();
+	socketExit();
     appletUnhook(&applet_hook_cookie);
     appletUnlockExit();
-#ifdef NDEBUG
-    socketExit();
-#endif
 #endif
 
     return 0;

@@ -11,6 +11,7 @@ PPLAYConfig::PPLAYConfig(Main *main, int version)
         : Config("PPLAY", main->getIo()->getDataPath() + "pplay.cfg", version) {
 
     addOption({OPT_NETWORK, "http://samples.ffmpeg.org/"});
+	addOption({OPT_ENIGMA2_IP, "enigma2://127.0.0.1/"});
 #ifdef __SWITCH__
     addOption({OPT_UMS_DEVICE, "ums0:/"});
 #endif
@@ -19,7 +20,6 @@ PPLAYConfig::PPLAYConfig(Main *main, int version)
     addOption({OPT_CACHE_MEDIA_INFO, (int) 1});
     //addOption({OPT_BUFFER, "Low"}); // Low, Medium, High, VeryHigh
     addOption({OPT_CPU_BOOST, "Disabled"}); // Disabled, Enabled
-    addOption({OPT_TMDB_LANGUAGE, "en-US"});
 
     // load the configuration from file, overwriting default values
     load();
@@ -30,10 +30,6 @@ PPLAYConfig::PPLAYConfig(Main *main, int version)
 
     if (!main->getIo()->exist(getOption(OPT_LAST_PATH)->getString())) {
         getOption(OPT_LAST_PATH)->setString(main->getIo()->getDataPath());
-    }
-
-    if (getOption(OPT_TMDB_LANGUAGE)->getString().empty()) {
-        getOption(OPT_TMDB_LANGUAGE)->setString("en-US");
     }
 
     // save configuration, in case new options needs to be added

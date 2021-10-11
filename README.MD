@@ -27,4 +27,13 @@ you must edit the configuration file (pplay.cfg) to add your server address:
   - NETWORK = "ftp://user:password@ip:port/";
 
 - As pPlay use [MPV](https://mpv.io/), you can put a file named "mpv.conf" in the "mpv" folder to play with. 
-See the [CONFIGURATION FILES](https://mpv.io/manual/master/#configuration-files) and [OPTIONS](https://mpv.io/manual/master/#options) sections in the [MPV](https://mpv.io/manual/master/#) manual for more informations. 
+See the [CONFIGURATION FILES](https://mpv.io/manual/master/#configuration-files) and [OPTIONS](https://mpv.io/manual/master/#options) sections in the [MPV](https://mpv.io/manual/master/#) manual for more informations.
+
+- This is a fork of https://github.com/Cpasjuste/pplay 
+
+Fork Notes
+----
+- This fork add Enigma2 support. to use it you must edit the configuration file (pplay.cfg) to add your decoder address:
+ - ENIGMA2_IP = "enigma2://ipaddrofdecoder/";
+ 
+- This fork removed the scraper function, if you liked it just use the original version.

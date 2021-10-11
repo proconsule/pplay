@@ -50,7 +50,11 @@ void MenuMain::onOptionSelection(MenuItem *item) {
     if (item->name == "Home") {
         setVisibility(Visibility::Hidden, true);
         main->show(Main::MenuType::Home);
-    } else if (item->name == "Network") {
+    } else if (item->name == "Enigma2") {
+        setVisibility(Visibility::Hidden, true);
+        main->show(Main::MenuType::Enigma2);
+    }
+	else if (item->name == "Network") {
         setVisibility(Visibility::Hidden, true);
         main->show(Main::MenuType::Network);
     } else if (item->name == "Options") {

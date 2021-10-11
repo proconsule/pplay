@@ -29,7 +29,7 @@ project(pplay)
 
 # pplay version
 set(VERSION_MAJOR "3")
-set(VERSION_MINOR "5")
+set(VERSION_MINOR "5-fork-v1")
 set(PROJECT_AUTHOR "Cpasjuste, proconsule fork")
 set(TITLE_ID "PPLAY0001")
 
@@ -38,6 +38,7 @@ set(PPLAY_INC
         src/filer
         src/filer/Browser
         src/filer/ftplib
+        src/filer/Enigma2
         src/menus
         src/player
         )
@@ -47,6 +48,7 @@ file(GLOB PPLAY_SRC
         src/filer/*.c*
         src/filer/Browser/*.c*
         src/filer/ftplib/*.c*
+        src/filer/Enigma2/*.c*
         src/menus/*.c*
         src/player/*.c*
         )
@@ -75,7 +77,7 @@ if (PLATFORM_SWITCH)
     #####################
     set(MPV_LIBRARIES mpv)
     list(APPEND PPLAY_INC)
-    list(APPEND PPLAY_LDFLAGS swscale swresample avformat avfilter avcodec avutil lzma opus vpx ass freetype fribidi png bz2 usbhsfs ntfs-3g lwext4)
+    list(APPEND PPLAY_LDFLAGS swscale swresample avformat avfilter avcodec avutil lzma opus vpx ass freetype fribidi png bz2 usbhsfs ntfs-3g lwext4 curl tinyxml2)
 elseif (PLATFORM_LINUX)
     #####################
     # LINUX PLATORM
@@ -96,7 +98,7 @@ add_executable(${CMAKE_PROJECT_NAME} ${PPLAY_SRC})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${PPLAY_INC})
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE ${PPLAY_CFLAGS})
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
-target_link_libraries(${CMAKE_PROJECT_NAME} cross2d ${MPV_LIBRARIES} curl ${PPLAY_LDFLAGS})
+target_link_libraries(${CMAKE_PROJECT_NAME} cross2d ${MPV_LIBRARIES} ${PPLAY_LDFLAGS})
 
 #####################
 # targets

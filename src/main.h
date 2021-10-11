@@ -47,6 +47,7 @@ public:
         Home,
         Network,
         Current,
+		Enigma2,
 #ifdef __SWITCH__
         Usb
 #endif

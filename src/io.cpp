@@ -7,6 +7,7 @@
 #include "media_info.h"
 #include "ftplib.h"
 #include "Browser/Browser.hpp"
+#include "Enigma2/Enigma2.h"
 
 using namespace pplay;
 
@@ -29,7 +30,9 @@ static size_t find_Nth(const std::string &str, unsigned n, const std::string &fi
 }
 
 Io::Io() : c2d::C2DIo() {
-
+#ifndef NDEBUG
+	socketInitializeDefault();
+#endif
     // http io
     browser = new Browser();
     browser->set_handle_gzip(true);
@@ -39,6 +42,9 @@ Io::Io() : c2d::C2DIo() {
 
     // ftp io
     FtpInit();
+	
+	//Enigma2 io
+	enigma2 = new Enigma2();
 }
 
 std::vector<c2d::Io::File> Io::getDirList(const pplay::Io::DeviceType &type, const std::vector<std::string> &extensions,
@@ -50,6 +56,31 @@ std::vector<c2d::Io::File> Io::getDirList(const pplay::Io::DeviceType &type, con
 
     if (type == DeviceType::Sdmc) {
         files = c2d::C2DIo::getDirList(path, sort, showHidden);
+		
+	} else if (type == DeviceType::Enigma2) {
+		if (c2d::Utility::startWith(path, "enigma2://")) {
+			string teststr = path;
+			teststr.erase(0,10);
+            enigma2->enigma2ip = teststr;
+			enigma2->getServices();
+			files.emplace_back("..", "..", Io::Type::Directory, 0);
+			for(unsigned int i=0;i<enigma2->e2services.size();i++){
+				files.emplace_back(enigma2->e2services[i].name, enigma2->e2services[i].bouquetref, Io::Type::Directory, 0);
+#ifdef NDEBUG
+				printf("%s\n",enigma2->e2services[i].bouquetref.c_str());
+#endif
+			}
+        } if (c2d::Utility::endsWith(path, "bouquet")) {
+			vector<ChannelStruct> channels = enigma2->m3uParser((char *)path.c_str());
+			files.emplace_back("..", path, Io::Type::Directory, 0);
+			for(unsigned int i=0;i<channels.size();i++){
+#ifdef NDEBUG
+				printf("%s\n",channels[i].name.c_str());
+#endif
+				files.emplace_back(channels[i].name, channels[i].url, Io::Type::File, 0);
+			}
+		}
+		
     } else if (type == DeviceType::Http) {
         std::string http_path = path;
         if (!c2d::Utility::endsWith(http_path, "/")) {
@@ -141,7 +172,7 @@ std::vector<c2d::Io::File> Io::getDirList(const pplay::Io::DeviceType &type, con
     }
 
     // remove items by extensions, if provided
-    if (!extensions.empty()) {
+    if (!extensions.empty() && type != DeviceType::Enigma2) {
         files.erase(
                 std::remove_if(files.begin(), files.end(), [extensions](const Io::File &file) {
                     for (auto &ext : extensions) {
@@ -164,7 +195,12 @@ Io::DeviceType Io::getType(const std::string &path) const {
         type = pplay::Io::DeviceType::Http;
     } else if (c2d::Utility::startWith(path, "ftp://")) {
         type = pplay::Io::DeviceType::Ftp;
+    } else if (c2d::Utility::startWith(path, "enigma2://")) {
+        type = pplay::Io::DeviceType::Enigma2;
+    } else if (c2d::Utility::endsWith(path, "bouquet")) {
+        type = pplay::Io::DeviceType::Enigma2;
     }
+	
 
     return type;
 }

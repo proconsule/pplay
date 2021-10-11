@@ -119,7 +119,12 @@ bool Filer::onInput(c2d::Input::Player *players) {
             enter(item_index);
         } else if (pplay::Utility::isMedia(getSelection())) {
             main->getPlayer()->load(files[item_index]);
-        }
+        }else if (getSelection().type == Io::Type::File && c2d::Utility::startWith(getSelection().path, "enigma2://")) {
+			MediaFile myfile = files[item_index];
+			myfile.path.erase(0,10);
+			main->getPlayer()->load(myfile);
+		}
+		
     } else if (keys & Input::Key::Fire2) {
         exit();
     } else if (keys & Input::Key::Fire3) {
@@ -152,9 +157,9 @@ static bool compare(const MediaFile &a, const MediaFile &b) {
 }
 
 bool Filer::getDir(const std::string &p) {
-
+#ifdef NDEBUG
     printf("getDir(%s)\n", p.c_str());
-
+#endif
     files.clear();
     path = p;
     if (path.size() > 1 && Utility::endsWith(path, "/")) {
@@ -175,7 +180,7 @@ bool Filer::getDir(const std::string &p) {
     }
 
     // sort after title have been scrapped
-    std::sort(files.begin(), files.end(), compare);
+    //std::sort(files.begin(), files.end(), compare);
 
     if (files.empty() || files.at(0).name != "..") {
         Io::File file("..", "..", Io::Type::Directory, 0);
@@ -196,8 +201,11 @@ void Filer::enter(int index) {
         exit();
         return;
     }
-
-    if (path == "/") {
+	
+	if(c2d::Utility::endsWith(file.path, "bouquet")){
+		success = getDir(file.path);
+	}
+    else if (path == "/") {
         success = getDir(path + file.name);
     } else {
         success = getDir(path + "/" + file.name);
@@ -211,12 +219,15 @@ void Filer::enter(int index) {
 void Filer::exit() {
 
     std::string p = path;
-
-    if (p == "/" || p.find('/') == std::string::npos) {
+	
+	pplay::Io::DeviceType type = ((pplay::Io *) main->getIo())->getType(p);
+	if (type == pplay::Io::DeviceType::Enigma2) {
+		p=main->getConfig()->getOption(OPT_ENIGMA2_IP)->getString();
+	}
+	if (p == "/" || p.find('/') == std::string::npos) {
         return;
     }
 
-    pplay::Io::DeviceType type = ((pplay::Io *) main->getIo())->getType(p);
     if (type != pplay::Io::DeviceType::Sdmc) {
         std::string s = p;
         if (!Utility::endsWith(s, "/")) {

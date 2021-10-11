@@ -8,6 +8,7 @@
 #include "cross2d/c2d.h"
 
 class Browser;
+class Enigma2;
 
 namespace pplay {
 
@@ -20,7 +21,7 @@ namespace pplay {
         ~Io() override;
 
         enum class DeviceType {
-            Sdmc, Http, Ftp
+            Sdmc, Http, Ftp, Enigma2
         };
 
         std::vector<Io::File> getDirList(const DeviceType &type, const std::vector<std::string> &extensions,
@@ -31,6 +32,7 @@ namespace pplay {
     private:
 
         Browser *browser;
+		Enigma2 *enigma2;
 
     };
 }

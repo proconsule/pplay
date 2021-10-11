@@ -7,6 +7,7 @@
 
 #include "cross2d/skeleton/config.h"
 
+#define OPT_ENIGMA2_IP          "ENIGMA2_IP"
 #define OPT_NETWORK             "NETWORK"
 #define OPT_UMS_DEVICE          "UMS_DEVICE"
 #define OPT_HOME_PATH           "HOME_PATH"

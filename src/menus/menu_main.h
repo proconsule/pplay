@@ -7,6 +7,7 @@
 
 #include "menu.h"
 #include "menu_main_options.h"
+#include "menu_main_info.h"
 #include "menu_main_options_submenu.h"
 
 class MenuMain : public Menu {
@@ -18,6 +19,8 @@ public:
     MenuMainOptions *getMenuMainOptions();
 
     MenuMainOptionsSubmenu *getMenuMainOptionsSubmenu(const std::string &name);
+	
+	MenuMainInfo *getMenuMainInfo();
 
     bool isMenuVisible();
 
@@ -28,6 +31,7 @@ private:
     void onOptionSelection(MenuItem *item) override;
 
     MenuMainOptions *menuMainOptions;
+	MenuMainInfo *menuMainInfo;
     MenuMainOptionsSubmenu *menuMainOptionsCpu;
 #ifdef __SWITCH__
     MenuMainOptionsSubmenu *menuMainOptionsUsb;

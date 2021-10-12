@@ -102,11 +102,11 @@ vector<ChannelStruct> Enigma2::m3uParser(char * url){
 	m3uurl.append(enigma2ip);
 	m3uurl.append("/web/services.m3u?bRef=");
 	m3uurl.append(urlencode(url));
-	struct MemoryStruct chunk;
-	curlDownload((char *)m3uurl.c_str(),&chunk);
+	MemoryStruct *chunk = (MemoryStruct *)malloc(sizeof(MemoryStruct));
+	curlDownload((char *)m3uurl.c_str(),chunk);
 	
 	vector<ChannelStruct> tmpret;
-	string s = chunk.memory;
+	string s = chunk->memory;
 	std::regex rgx("#EXTINF:(?:)[[:print:]]*,(.+)\n[[:print:]]*\n(http[[:print:]]*)");
     std::smatch matches;
     std::smatch sm;
@@ -119,18 +119,21 @@ vector<ChannelStruct> Enigma2::m3uParser(char * url){
 		tmpret.push_back(tmpchannel);
 		s = sm.suffix();
 	}
-	free(chunk.memory);
+	free(chunk->memory);
+	free(chunk);
 	return tmpret;
 }
 
 bool Enigma2::getServices(){
-	struct MemoryStruct chunk;
+	MemoryStruct *chunk = (MemoryStruct *)malloc(sizeof(MemoryStruct));
 	string downurl = "http://";
 	downurl.append(enigma2ip);
 	downurl.append("/web/getservices?sRef=");
-	curlDownload((char *)downurl.c_str(),&chunk);
-
-	e2services =  parseBouquet(chunk.memory);
-	free(chunk.memory);
+	curlDownload((char *)downurl.c_str(),chunk);
+	printf("BBBB: %s\n",chunk->memory);
+	e2services =  parseBouquet(chunk->memory);
+	free(chunk->memory);
+	free(chunk);
+	return true;
 }
  

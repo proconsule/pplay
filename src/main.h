@@ -12,6 +12,7 @@
 #include "menu.h"
 #include "menu_main.h"
 #include "menu_video.h"
+#include "info_box.h"
 #include "status_box.h"
 #include "status_bar.h"
 #include "io.h"
@@ -85,6 +86,8 @@ public:
 
     c2d::MessageBox *getMessageBox();
 
+	InfoBox *getInfoBox();
+
     StatusBox *getStatus();
 
     StatusBar *getStatusBar();
@@ -107,6 +110,7 @@ private:
     c2d::Font *font = nullptr;
     c2d::Clock *timer = nullptr;
     c2d::MessageBox *messageBox = nullptr;
+	InfoBox *infoBox = nullptr;
     StatusBox *statusBox = nullptr;
     PPLAYConfig *config = nullptr;
     Filer *filer = nullptr;

@@ -19,7 +19,16 @@ MenuMain::MenuMain(Main *main, const c2d::FloatRect &rect, const std::vector<Men
     menuMainOptions = new MenuMainOptions(main, rect, it);
     menuMainOptions->setLayer(2);
     menuMainOptions->setVisibility(Visibility::Hidden, false);
-    main->add(menuMainOptions);
+	main->add(menuMainOptions);
+	
+	std::vector<MenuItem> itinfo;
+	itinfo.emplace_back("MPV", "mpv.png", MenuItem::Position::Top);
+	itinfo.emplace_back("FFMPEG", "ffmpeg.png", MenuItem::Position::Top);
+	
+	menuMainInfo = new MenuMainInfo(main, rect, itinfo);
+    menuMainInfo->setLayer(2);
+    menuMainInfo->setVisibility(Visibility::Hidden, false);
+	main->add(menuMainInfo);
 
     // Cpu Speed
     it.clear();
@@ -60,6 +69,9 @@ void MenuMain::onOptionSelection(MenuItem *item) {
     } else if (item->name == "Options") {
         setVisibility(Visibility::Hidden, true);
         menuMainOptions->setVisibility(Visibility::Visible);
+	} else if (item->name == "Info") {
+        setVisibility(Visibility::Hidden, true);
+        menuMainInfo->setVisibility(Visibility::Visible);
 #ifdef __SWITCH__
     } else if (item->name == "Usb") {
         setVisibility(Visibility::Hidden, true);
@@ -82,6 +94,9 @@ bool MenuMain::onInput(c2d::Input::Player *players) {
         if (item->name == "Options") {
             onOptionSelection(item);
         }
+		if (item->name == "Info") {
+            onOptionSelection(item);
+        }
         return true;
     }
 
@@ -90,12 +105,17 @@ bool MenuMain::onInput(c2d::Input::Player *players) {
 
 bool MenuMain::isMenuVisible() {
     return isVisible()
+		   || menuMainInfo->isVisible()	
            || menuMainOptions->isVisible()
            || menuMainOptionsCpu->isVisible()
            #ifdef __SWITCH__
            || menuMainOptionsUsb->isVisible()
 #endif
             ;
+}
+
+MenuMainInfo *MenuMain::getMenuMainInfo() {
+    return menuMainInfo;
 }
 
 MenuMainOptions *MenuMain::getMenuMainOptions() {

@@ -24,7 +24,7 @@ Mpv::Mpv(const std::string &configPath, bool initRender) {
     mpv_set_option_string(handle, "msg-level", "all=v");
 #endif
     mpv_set_option_string(handle, "vd-lavc-threads", "4");
-    //mpv_set_option_string(handle, "vd-lavc-fast", "yes");
+//    mpv_set_option_string(handle, "vd-lavc-fast", "yes");
     mpv_set_option_string(handle, "vd-lavc-skiploopfilter", "all");
     mpv_set_option_string(handle, "audio-channels", "stereo");
     mpv_set_option_string(handle, "video-timing-offset", "0");
@@ -61,6 +61,10 @@ Mpv::Mpv(const std::string &configPath, bool initRender) {
             handle = nullptr;
         }
     }
+	mpv_version = mpv_get_property_string(handle, "mpv-version");
+	ffmpeg_version = mpv_get_property_string(handle, "ffmpeg-version");
+	printf("MPV: %s\n",mpv_version.c_str());
+	printf("FFMPEG: %s\n",ffmpeg_version.c_str());
 }
 
 Mpv::~Mpv() {

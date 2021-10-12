@@ -72,6 +72,11 @@ Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
     font->setFilter(Texture::Filter::Linear);
     font->setOffset({0, -4});
 
+	infoBox = new InfoBox(this, {0, getSize().y - 16});
+    infoBox->setOrigin(Origin::BottomLeft);
+    infoBox->setLayer(10);
+    add(infoBox);
+
     statusBox = new StatusBox(this, {0, getSize().y - 16});
     statusBox->setOrigin(Origin::BottomLeft);
     statusBox->setLayer(10);
@@ -108,6 +113,7 @@ Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
 		items.emplace_back("Enigma2", "enigma2.png", MenuItem::Position::Top);
 	}
     items.emplace_back("Options", "options.png", MenuItem::Position::Top);
+	items.emplace_back("Info", "info.png", MenuItem::Position::Top);
     items.emplace_back("Exit", "exit.png", MenuItem::Position::Bottom);
     menu_main = new MenuMain(this, {-250 * scaling, 0, 250 * scaling, getSize().y}, items);
     menu_main->setVisibility(Visibility::Hidden, false);
@@ -221,7 +227,7 @@ void Main::show(MenuType type) {
         usbHsFsExit();
 #endif
 		filer->getDir(config->getOption(OPT_ENIGMA2_IP)->getString());
-	}else {
+	}else if (type == MenuType::Network) {
 #ifdef __SWITCH__
         usbHsFsExit();
 #endif
@@ -287,6 +293,10 @@ c2d::Font *Main::getFont() {
 
 c2d::MessageBox *Main::getMessageBox() {
     return messageBox;
+}
+
+InfoBox *Main::getInfoBox() {
+    return infoBox;
 }
 
 StatusBox *Main::getStatus() {

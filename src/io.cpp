@@ -47,41 +47,57 @@ Io::Io() : c2d::C2DIo() {
 	enigma2 = new Enigma2();
 }
 
-std::vector<c2d::Io::File> Io::getDirList(const pplay::Io::DeviceType &type, const std::vector<std::string> &extensions,
+std::vector<MediaFile> Io::getDirList(const pplay::Io::DeviceType &type, const std::vector<std::string> &extensions,
                                           const std::string &path, bool sort, bool showHidden) {
 
-    std::vector<c2d::Io::File> files;
+    std::vector<MediaFile> files;
 
     printf("Io::getDir(%s)\n", path.c_str());
 
     if (type == DeviceType::Sdmc) {
-        files = c2d::C2DIo::getDirList(path, sort, showHidden);
+		std::vector<c2d::Io::File> sdmcfiles = c2d::C2DIo::getDirList(path, sort, showHidden);
+		 for (auto &file : sdmcfiles) {
+			MediaFile tmpfile(file,MediaInfo(file));
+			files.push_back(tmpfile); 
+		}
 		
 	} else if (type == DeviceType::Enigma2) {
+		std::vector<c2d::Io::File> enigmafiles;
 		if (c2d::Utility::startWith(path, "enigma2://")) {
 			string teststr = path;
 			teststr.erase(0,10);
             enigma2->enigma2ip = teststr;
 			enigma2->getServices();
-			files.emplace_back("..", "..", Io::Type::Directory, 0);
+			enigmafiles.emplace_back("..", "..", Io::Type::Directory, 0);
 			for(unsigned int i=0;i<enigma2->e2services.size();i++){
-				files.emplace_back(enigma2->e2services[i].name, enigma2->e2services[i].bouquetref, Io::Type::Directory, 0);
+				enigmafiles.emplace_back(enigma2->e2services[i].name, enigma2->e2services[i].bouquetref, Io::Type::Directory, 0);
 #ifdef NDEBUG
 				printf("%s\n",enigma2->e2services[i].bouquetref.c_str());
 #endif
 			}
+			for (auto &file : enigmafiles) {
+				MediaFile tmpfile(file,MediaInfo(file));
+				files.push_back(tmpfile); 
+			}
+			
         } if (c2d::Utility::endsWith(path, "bouquet")) {
 			vector<ChannelStruct> channels = enigma2->m3uParser((char *)path.c_str());
-			files.emplace_back("..", path, Io::Type::Directory, 0);
+			enigmafiles.emplace_back("..", path, Io::Type::Directory, 0);
 			for(unsigned int i=0;i<channels.size();i++){
 #ifdef NDEBUG
 				printf("%s\n",channels[i].name.c_str());
 #endif
-				files.emplace_back(channels[i].name, channels[i].url, Io::Type::File, 0);
+				c2d::Io::File e2tmpfile(channels[i].name, channels[i].url, Io::Type::File, 0);
+				MediaFile tmpfile(e2tmpfile,MediaInfo(e2tmpfile));
+				tmpfile.isEnigma2 = true;
+				tmpfile.epgtitle = channels[i].epgtitle;
+				files.push_back(tmpfile);
 			}
+			
 		}
 		
     } else if (type == DeviceType::Http) {
+		std::vector<c2d::Io::File> httpfiles;
         std::string http_path = path;
         if (!c2d::Utility::endsWith(http_path, "/")) {
             http_path += "/";
@@ -98,7 +114,7 @@ std::vector<c2d::Io::File> Io::getDirList(const pplay::Io::DeviceType &type, con
         }
 
         // add up/back ("..")
-        files.emplace_back("..", "..", Io::Type::Directory, 0);
+        httpfiles.emplace_back("..", "..", Io::Type::Directory, 0);
 
         for (int i = 0; i < browser->links.size(); i++) {
             // skip apache2 stuff
@@ -118,13 +134,18 @@ std::vector<c2d::Io::File> Io::getDirList(const pplay::Io::DeviceType &type, con
             if (c2d::Utility::endsWith(name, "/")) {
                 name = c2d::Utility::removeLastSlash(name);
             }
-            files.emplace_back(name, http_path + name, t);
+            httpfiles.emplace_back(name, http_path + name, t);
         }
         if (sort) {
             std::sort(files.begin(), files.end(), compare);
         }
+		for (auto &file : httpfiles) {
+			MediaFile tmpfile(file,MediaInfo(file));
+			files.push_back(tmpfile); 
+		}
+		
     } else if (type == DeviceType::Ftp) {
-        std::string ftp_path = path;
+		std::string ftp_path = path;
         if (!c2d::Utility::endsWith(ftp_path, "/")) {
             ftp_path += "/";
         }
@@ -165,7 +186,8 @@ std::vector<c2d::Io::File> Io::getDirList(const pplay::Io::DeviceType &type, con
             if (file.path != "..") {
                 file.path = ftp_path + file.name;
             }
-            files.push_back(file);
+			MediaFile tmpfile(file,MediaInfo(file));
+            files.push_back(tmpfile);
         }
 
         FtpQuit(ftp_con);

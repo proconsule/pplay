@@ -29,7 +29,7 @@ project(pplay)
 
 # pplay version
 set(VERSION_MAJOR "3")
-set(VERSION_MINOR "5-fork-v2")
+set(VERSION_MINOR "5-fork-v4")
 set(PROJECT_AUTHOR "Cpasjuste, proconsule fork")
 set(TITLE_ID "PPLAY0001")
 
@@ -51,7 +51,6 @@ file(GLOB PPLAY_SRC
         src/filer/Enigma2/*.c*
         src/menus/*.c*
         src/player/*.c*
-
         )
 
 set(PPLAY_CFLAGS

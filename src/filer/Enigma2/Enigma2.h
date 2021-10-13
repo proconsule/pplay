@@ -17,7 +17,10 @@ struct MemoryStruct {
 struct ChannelStruct{
 	string name;
 	string url;
+	string srvref;
+	string epgtitle;
 };
+
 
 struct EnigmaServices{
 	string name;

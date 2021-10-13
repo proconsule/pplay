@@ -41,7 +41,11 @@ void FilerItem::setFile(const MediaFile &f) {
     }
     textTitle->setAlpha(alpha);
     if (file.type == Io::Type::File) {
-        textInfo->setString(file.name);
+		if(file.isEnigma2){
+			textInfo->setString(file.epgtitle);
+		}else{
+			textInfo->setString("");
+		}
     } else {
         textInfo->setString("");
     }

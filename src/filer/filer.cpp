@@ -58,7 +58,7 @@ void Filer::setSelection(int index) {
             items[i]->setVisibility(Visibility::Hidden);
         } else {
             // load media info, set file
-            MediaFile file = files[index_start + i];
+            MediaFile file(files[index_start + i]);
             items[i]->setFile(file);
             items[i]->setVisibility(Visibility::Visible);
             // set highlight position
@@ -168,20 +168,25 @@ bool Filer::getDir(const std::string &p) {
 
     std::vector<std::string> ext = pplay::Utility::getMediaExtensions();
     pplay::Io::DeviceType type = ((pplay::Io *) main->getIo())->getType(p);
-    std::vector<Io::File> _files =
+    std::vector<MediaFile> _files =
             ((pplay::Io *) main->getIo())->getDirList(type, ext, path, false);
 
+	
     for (auto &file : _files) {
+		/*
         MediaFile mf(file, MediaInfo(file));
         if (file.type == Io::Type::File) {
             
         }
         files.emplace_back(mf);
+		*/
+		files.push_back(file);
     }
-
+	
     // sort after title have been scrapped
-    //std::sort(files.begin(), files.end(), compare);
-
+	if(type!=pplay::Io::DeviceType::Enigma2){
+		std::sort(files.begin(), files.end(), compare);
+	}
     if (files.empty() || files.at(0).name != "..") {
         Io::File file("..", "..", Io::Type::Directory, 0);
         files.insert(files.begin(), MediaFile{file, MediaInfo(file)});

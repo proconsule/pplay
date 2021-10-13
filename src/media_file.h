@@ -13,15 +13,19 @@ class MediaFile : public c2d::Io::File {
 public:
 
     MediaFile() = default;
-
-    explicit MediaFile(const c2d::Io::File &file, const MediaInfo &media) {
+	
+	explicit MediaFile(const c2d::Io::File &file, const MediaInfo &media) {
         name = file.name;
         path = file.path;
         type = file.type;
         size = file.size;
         mediaInfo = media;
+		isEnigma2 = false;
+		epgtitle = "";
     }
-
+	
+	bool isEnigma2 = false;
+	std::string epgtitle = "";
     MediaInfo mediaInfo;
 };
 

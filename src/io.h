@@ -6,6 +6,7 @@
 #define PPLAY_IO_H
 
 #include "cross2d/c2d.h"
+#include "media_file.h"
 
 class Browser;
 class Enigma2;
@@ -24,7 +25,7 @@ namespace pplay {
             Sdmc, Http, Ftp, Enigma2
         };
 
-        std::vector<Io::File> getDirList(const DeviceType &type, const std::vector<std::string> &extensions,
+        std::vector<MediaFile> getDirList(const DeviceType &type, const std::vector<std::string> &extensions,
                                          const std::string &path, bool sort = false, bool showHidden = false);
 
         DeviceType getType(const std::string &path) const;

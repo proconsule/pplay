@@ -107,7 +107,7 @@ vector<ChannelStruct> Enigma2::m3uParser(char * url){
 	
 	vector<ChannelStruct> tmpret;
 	string s = chunk->memory;
-	std::regex rgx("#EXTINF:(?:)[[:print:]]*,(.+)\n[[:print:]]*\n(http[[:print:]]*)");
+	std::regex rgx(".*#EXTINF:[[:print:]]*,([[:print:]]*)\n?#?.*\n(http.+)\n");
     std::smatch matches;
     std::smatch sm;
 	while (regex_search(s, sm, rgx))
@@ -116,11 +116,44 @@ vector<ChannelStruct> Enigma2::m3uParser(char * url){
 		tmpchannel.name = sm[1];
 		tmpchannel.url = "enigma2://";
 		tmpchannel.url.append(sm[2]); 
+		std::size_t found = tmpchannel.url.find_last_of("/");
+		tmpchannel.srvref = tmpchannel.url.substr(found+1);
 		tmpret.push_back(tmpchannel);
 		s = sm.suffix();
 	}
+	
+	string epguurl = "http://";
+	epguurl.append(enigma2ip);
+	epguurl.append("/web/epgnow?bRef=");
+	epguurl.append(urlencode(url));
+	MemoryStruct *chunk2 = (MemoryStruct *)malloc(sizeof(MemoryStruct));
+	curlDownload((char *)epguurl.c_str(),chunk2);
+	
+	XMLDocument doc;
+	doc.Parse( chunk2->memory );
+	
+	XMLElement * pRootElement = doc.RootElement();
+	if (NULL != pRootElement) {
+		XMLElement * pe2service = pRootElement->FirstChildElement("e2event");
+		while(pe2service){
+			XMLElement * pe2serviceref = pe2service->FirstChildElement("e2eventservicereference");
+			XMLElement * pe2serviceName = pe2service->FirstChildElement("e2eventservicename");
+			XMLElement * pe2eventTitle = pe2service->FirstChildElement("e2eventtitle");
+			if(string(pe2eventTitle->GetText()) != "None"){
+				for(unsigned int i=0;i<tmpret.size();i++){
+					if(string(pe2serviceref->GetText()) == tmpret[i].srvref){
+						tmpret[i].epgtitle = pe2eventTitle->GetText();
+						break;
+					}
+				}
+			}
+			pe2service = pe2service->NextSiblingElement("e2event");
+		}
+	}
 	free(chunk->memory);
 	free(chunk);
+	free(chunk2->memory);
+	free(chunk2);
 	return tmpret;
 }
 
@@ -130,7 +163,6 @@ bool Enigma2::getServices(){
 	downurl.append(enigma2ip);
 	downurl.append("/web/getservices?sRef=");
 	curlDownload((char *)downurl.c_str(),chunk);
-	printf("BBBB: %s\n",chunk->memory);
 	e2services =  parseBouquet(chunk->memory);
 	free(chunk->memory);
 	free(chunk);

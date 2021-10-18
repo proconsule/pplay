@@ -59,6 +59,8 @@ public:
     bool isPaused();
 
     bool isAvailable();
+	
+	double getFPS();
 
     mpv_event *getEvent();
 
@@ -70,6 +72,11 @@ public:
 	
 	std::string mpv_version;
 	std::string ffmpeg_version;
+	
+	std::string v_codec;
+	std::string a_codec;
+	
+	
 	
 
 private:

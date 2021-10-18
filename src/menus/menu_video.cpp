@@ -34,6 +34,9 @@ void MenuVideo::onOptionSelection(MenuItem *item) {
         } else {
             main->getStatus()->show("Information...", "No subtitles streams found in media", false, false);
         }
+	} else if (item->name == "Status Overlay") {
+        main->getPlayer()->getStatusOverlay()->setVisibility(Visibility::Visible, true);
+		setVisibility(Visibility::Hidden, true);
     } else if (item->name == "Stop") {
         main->getPlayer()->stop();
         setVisibility(Visibility::Hidden, true);

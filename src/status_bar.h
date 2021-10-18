@@ -20,8 +20,10 @@ public:
     ~StatusBar() override;
 
     void onUpdate() override;
-
+	
+	Main *main;
     Battery *battery = nullptr;
+	c2d::Text *batteryPercText = nullptr;
     c2d::Text *timeText = nullptr;
 };
 

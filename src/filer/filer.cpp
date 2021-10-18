@@ -91,8 +91,9 @@ bool Filer::onInput(c2d::Input::Player *players) {
         || main->getPlayer()->isFullscreen()) {
         return false;
     }
-
-    unsigned int keys = players[0].keys;
+	
+	main->getCpuMeter()->GetCores_Perc();
+	unsigned int keys = players[0].keys;
 
     if (keys & c2d::Input::Start || keys & c2d::Input::Select) {
         main->getMenuMain()->setVisibility(Visibility::Visible, true);

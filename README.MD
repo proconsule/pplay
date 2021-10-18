@@ -37,3 +37,4 @@ Fork Notes
  - ENIGMA2_IP = "enigma2://ipaddrofdecoder/";
  
 - This fork removed the scraper function, if you liked it just use the original version.
+- This fork added a CPU/GPU/MEM load overlay

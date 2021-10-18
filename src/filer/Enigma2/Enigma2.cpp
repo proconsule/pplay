@@ -161,7 +161,7 @@ bool Enigma2::getServices(){
 	MemoryStruct *chunk = (MemoryStruct *)malloc(sizeof(MemoryStruct));
 	string downurl = "http://";
 	downurl.append(enigma2ip);
-	downurl.append("/web/getservices?sRef=");
+	downurl.append("/web/getservices");
 	curlDownload((char *)downurl.c_str(),chunk);
 	e2services =  parseBouquet(chunk->memory);
 	free(chunk->memory);

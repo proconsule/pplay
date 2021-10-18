@@ -34,6 +34,10 @@ public:
     void setSpeed(double speed);
 
     bool isFullscreen();
+	
+	bool isStatusOverlay();
+	
+	void setStatusOverlay(bool show);
 
     void setFullscreen(bool maximize, bool hide = false);
 
@@ -58,6 +62,10 @@ public:
     MenuVideoSubmenu *getMenuAudioStreams();
 
     MenuVideoSubmenu *getMenuSubtitlesStreams();
+	
+	MenuVideoSubmenu *getStatusOverlay();
+	
+	VideoTexture *getVideoTexture();
 
     const std::string &getTitle() const;
 
@@ -79,6 +87,7 @@ private:
     MenuVideoSubmenu *menuVideoStreams = nullptr;
     MenuVideoSubmenu *menuAudioStreams = nullptr;
     MenuVideoSubmenu *menuSubtitlesStreams = nullptr;
+	MenuVideoSubmenu *menuStatusOverlay = nullptr;
     MediaFile file;
 
     // player
@@ -86,6 +95,7 @@ private:
     Mpv *mpv;
 
     bool fullscreen = false;
+	bool status_overlay = false;
 };
 
 #endif //PPLAY_PLAYER_H

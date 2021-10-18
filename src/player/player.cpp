@@ -29,9 +29,9 @@ Player::Player(Main *_main) : Rectangle(_main->getSize()) {
     mpv = new Mpv(main->getIo()->getDataPath() + "mpv", true);
 
     // TODO: create texture of video size?
-    texture = new VideoTexture(pos, mpv);
-    texture->setOutlineColor(Color::Red);
-    texture->setOutlineThickness(4);
+    texture = new VideoTexture(main,pos, mpv);
+    //texture->setOutlineColor(Color::Red);
+    //texture->setOutlineThickness(4);
     add(texture);
 
     osd = new PlayerOSD(main);
@@ -119,6 +119,17 @@ void Player::onLoadEvent() {
         menuSubtitlesStreams->setLayer(3);
         add(menuSubtitlesStreams);
     }
+	
+	
+	std::vector<MenuItem> overlaymenuitems;
+	overlaymenuitems.emplace_back("Disabled", "", MenuItem::Position::Top, 0);
+	overlaymenuitems.emplace_back("Enabled", "", MenuItem::Position::Top, 1);
+	menuStatusOverlay = new MenuVideoSubmenu(
+				main, main->getMenuVideo()->getGlobalBounds(), "STATUS OVERLAY", overlaymenuitems, MENU_VIDEO_TYPE_OVL);
+	menuStatusOverlay->setSelection(MENU_VIDEO_TYPE_OVL);
+	menuStatusOverlay->setVisibility(Visibility::Hidden, false);
+    menuStatusOverlay->setLayer(3);
+    add(menuStatusOverlay);
 
     // restore saved tracks id
     setVideoStream(file.mediaInfo.playbackInfo.vid_id);
@@ -170,6 +181,11 @@ void Player::onStopEvent(int reason) {
         delete (menuSubtitlesStreams);
         menuSubtitlesStreams = nullptr;
     }
+	// status overlay
+	if (menuStatusOverlay != nullptr) {
+        delete (menuStatusOverlay);
+        menuStatusOverlay = nullptr;
+    }
 
     pplay::Utility::setCpuClock(pplay::Utility::CpuClock::Min);
 #ifdef __SWITCH__
@@ -180,6 +196,7 @@ void Player::onStopEvent(int reason) {
         main->setRunningStop();
     } else if (mpv->isStopped()) {
         setFullscreen(false, true);
+		setStatusOverlay(false);
     }
 }
 
@@ -256,6 +273,7 @@ void Player::onUpdate() {
             }
         }
     }
+	
 
     if (isVisible()) {
         Rectangle::onUpdate();
@@ -271,7 +289,8 @@ bool Player::onInput(c2d::Input::Player *players) {
         || main->getMenuVideo()->isVisible()
         || (getMenuVideoStreams() != nullptr && getMenuVideoStreams()->isVisible())
         || (getMenuAudioStreams() != nullptr && getMenuAudioStreams()->isVisible())
-        || (getMenuSubtitlesStreams() != nullptr && getMenuSubtitlesStreams()->isVisible())) {
+        || (getMenuSubtitlesStreams() != nullptr && getMenuSubtitlesStreams()->isVisible())
+		|| (getStatusOverlay() != nullptr && getStatusOverlay()->isVisible())) {
         return C2DObject::onInput(players);
     }
 
@@ -370,6 +389,15 @@ bool Player::isFullscreen() {
     return fullscreen;
 }
 
+bool Player::isStatusOverlay() {
+    return status_overlay;
+}
+
+void Player::setStatusOverlay(bool show) {
+    status_overlay = show;
+}
+
+
 void Player::setFullscreen(bool fs, bool hide) {
 
     if (fs == fullscreen) {
@@ -387,8 +415,9 @@ void Player::setFullscreen(bool fs, bool hide) {
         } else {
             tweenScale->play(TweenDirection::Backward);
             tweenPosition->play(TweenDirection::Backward);
+			texture->setOutlineColor(Color::Red);
+			texture->setOutlineThickness(4);
         }
-        texture->showFade();
         main->getMenuVideo()->setVisibility(Visibility::Hidden, true);
         if (menuVideoStreams != nullptr) {
             menuVideoStreams->setVisibility(Visibility::Hidden, true);
@@ -402,7 +431,8 @@ void Player::setFullscreen(bool fs, bool hide) {
         main->getFiler()->setVisibility(Visibility::Visible, true);
         main->getStatusBar()->setVisibility(Visibility::Visible, true);
     } else {
-        texture->hideFade();
+		texture->setOutlineColor(Color::Red);
+		texture->setOutlineThickness(0);
         main->getFiler()->setVisibility(Visibility::Hidden, true);
         main->getStatusBar()->setVisibility(Visibility::Hidden, true);
         setVisibility(Visibility::Visible, true);
@@ -419,6 +449,14 @@ MenuVideoSubmenu *Player::getMenuAudioStreams() {
 
 MenuVideoSubmenu *Player::getMenuSubtitlesStreams() {
     return menuSubtitlesStreams;
+}
+
+MenuVideoSubmenu *Player::getStatusOverlay() {
+    return menuStatusOverlay;
+}
+
+VideoTexture *Player::getVideoTexture(){
+	return texture;
 }
 
 const std::string &Player::getTitle() const {

@@ -18,6 +18,8 @@
 #include "io.h"
 #include "usbfs.h"
 
+#include "stats_utils.h"
+
 #define INPUT_DELAY 500
 #define ICON_SIZE 24
 #define BUTTON_HEIGHT 64
@@ -55,6 +57,7 @@ public:
     };
 
     enum class FontSize {
+		VerySmall = 10,
         Small = 16,
         Medium = 22,
         Big = 26
@@ -81,6 +84,8 @@ public:
     Filer *getFiler();
 
     PPLAYConfig *getConfig();
+
+	CPU_Meter *getCpuMeter();
 
     c2d::Font *getFont() override;
 
@@ -118,6 +123,8 @@ private:
     Player *player = nullptr;
     MenuMain *menu_main = nullptr;
     MenuVideo *menu_video = nullptr;
+	CPU_Meter *cpu_meter = nullptr;
+	
     unsigned int oldKeys = 0;
     float scaling = 1;
 

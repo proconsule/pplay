@@ -228,5 +228,8 @@ Io::DeviceType Io::getType(const std::string &path) const {
 }
 
 Io::~Io() {
-    delete (browser);
+	//printf("Deinit Browser\n");
+    //delete (browser);
+	printf("Deinit Enigma2\n");
+	delete (enigma2);
 }

@@ -23,11 +23,23 @@ Mpv::Mpv(const std::string &configPath, bool initRender) {
     mpv_set_option_string(handle, "terminal", "yes");
     mpv_set_option_string(handle, "msg-level", "all=v");
 #endif
-    mpv_set_option_string(handle, "vd-lavc-threads", "4");
-//    mpv_set_option_string(handle, "vd-lavc-fast", "yes");
+    mpv_set_option_string(handle, "vd-lavc-threads", "8");
     mpv_set_option_string(handle, "vd-lavc-skiploopfilter", "all");
     mpv_set_option_string(handle, "audio-channels", "stereo");
-    mpv_set_option_string(handle, "video-timing-offset", "0");
+	
+
+	mpv_set_option_string(handle, "scale", "bilinear");
+	mpv_set_option_string(handle, "dscale", "bilinear");
+	mpv_set_option_string(handle, "cscale", "bilinear");
+	mpv_set_option_string(handle, "antiring", "0");
+	mpv_set_option_string(handle, "antiring", "0");
+	mpv_set_option_string(handle, "dither-depth", "no");
+	mpv_set_option_string(handle, "correct-downscaling", "no");
+	mpv_set_option_string(handle, "sigmoid-upscaling", "no");
+	mpv_set_option_string(handle, "deband", "no");
+	mpv_set_option_string(handle, "fbo-format", "rgba8");
+
+		
 #ifdef __LINUX__
     mpv_set_option_string(handle, "hwdec", "auto-safe");
 #endif
@@ -46,7 +58,7 @@ Mpv::Mpv(const std::string &configPath, bool initRender) {
         handle = nullptr;
         return;
     }
-
+		
     if (initRender) {
         mpv_opengl_init_params gl_init_params{get_proc_address_mpv, nullptr, nullptr};
         mpv_render_param params[]{
@@ -182,6 +194,12 @@ bool Mpv::isPaused() {
     return res == 1;
 }
 
+double Mpv::getFPS(){
+	double fps = 0;
+	mpv_get_property(handle, "display-fps", MPV_FORMAT_DOUBLE,&fps);
+	return fps;
+}
+
 mpv_event *Mpv::getEvent() {
     return mpv_wait_event(handle, 0);
 }
@@ -198,7 +216,10 @@ MediaInfo Mpv::getMediaInfo(const c2d::Io::File &file) {
 
     MediaInfo mediaInfo(file);
     std::vector<MediaInfo::Track> streams;
-
+	
+	v_codec = mpv_get_property_string(handle, "video-codec");
+	a_codec = mpv_get_property_string(handle, "audio-codec");
+	
     if (!isAvailable() || isStopped()) {
         return mediaInfo;
     }

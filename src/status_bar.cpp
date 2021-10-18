@@ -22,6 +22,7 @@ class Battery : public RectangleShape {
 
 public:
 
+	unsigned int percent = 100;
     explicit Battery(const FloatRect &rect) : RectangleShape(rect) {
 
         setFillColor(Color::Transparent);
@@ -47,8 +48,7 @@ public:
         if (!isVisible()) {
             return;
         }
-
-        unsigned int percent = 100;
+        
 #ifdef __SWITCH__
         psmGetBatteryChargePercentage(&percent);
 #endif
@@ -62,11 +62,13 @@ public:
     RectangleShape *percentRect = nullptr;
 };
 
-StatusBar::StatusBar(Main *main) : GradientRectangle({0, 0, main->getSize().x, 32 * main->getScaling()}) {
+StatusBar::StatusBar(Main *m) : GradientRectangle({0, 0, m->getSize().x, 32 * m->getScaling()}) {
 
 #ifdef __SWITCH__
     psmInitialize();
 #endif
+
+	main = m;
 
     float height = getLocalBounds().height;
 
@@ -77,15 +79,20 @@ StatusBar::StatusBar(Main *main) : GradientRectangle({0, 0, main->getSize().x, 3
     battery = new Battery({main->getSize().x - 16, height / 2 + 1, (height - 16) * 2, height / 2});
     battery->setOrigin(Origin::Right);
     add(battery);
+	
+	batteryPercText = new Text("100%", main->getFontSize(Main::FontSize::Medium), main->getFont());
+	batteryPercText->setOrigin(Origin::Right);
+    batteryPercText->setPosition(battery->getPosition().x-batteryPercText->getLocalBounds().width+22, height / 2);
+    batteryPercText->setFillColor(COLOR_FONT);
+    add(batteryPercText);
 
     // time
     timeText = new Text("12:00", main->getFontSize(Main::FontSize::Medium), main->getFont());
     timeText->setOrigin(Origin::Right);
-    timeText->setPosition(battery->getPosition().x - timeText->getLocalBounds().width, height / 2);
+    timeText->setPosition(batteryPercText->getPosition().x - timeText->getLocalBounds().width - 22, height / 2);
     timeText->setFillColor(COLOR_FONT);
     add(timeText);
-
-    setVisibility(Visibility::Visible, true);
+	setVisibility(Visibility::Visible, true);
 }
 
 void StatusBar::onUpdate() {
@@ -103,8 +110,11 @@ void StatusBar::onUpdate() {
     oss << std::setfill('0') << std::setw(2) << time_struct->tm_hour << ":";
     oss << std::setfill('0') << std::setw(2) << time_struct->tm_min;
     timeText->setString(oss.str());
-
-    GradientRectangle::onUpdate();
+	GradientRectangle::onUpdate();
+	char bperctext[32];
+	snprintf(bperctext, sizeof bperctext, "%3d%s",battery->percent, "%");
+	batteryPercText->setString(bperctext);
+	
 }
 
 StatusBar::~StatusBar() {

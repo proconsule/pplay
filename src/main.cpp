@@ -48,7 +48,7 @@ using namespace pplay;
 Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
 
 #ifndef NDEBUG
-    Renderer::setPrintStats(true);
+    //Renderer::setPrintStats(true);
 #endif
 
     // custom io
@@ -101,7 +101,7 @@ Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
     player = new Player(this);
     player->setLayer(2);
     add(player);
-
+	
     // main menu
     std::vector<MenuItem> items;
     items.emplace_back("Home", "home.png", MenuItem::Position::Top);
@@ -125,6 +125,7 @@ Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
     items.emplace_back("Video", "video.png", MenuItem::Position::Top);
     items.emplace_back("Audio", "audio.png", MenuItem::Position::Top);
     items.emplace_back("Subtitles", "subtitles.png", MenuItem::Position::Top);
+	items.emplace_back("Status Overlay", "options.png", MenuItem::Position::Top);
     items.emplace_back("Stop", "exit.png", MenuItem::Position::Bottom);
     menu_video = new MenuVideo(this, {getSize().x, 0, 250 * scaling, getSize().y}, items);
     menu_video->setVisibility(Visibility::Hidden, false);
@@ -146,14 +147,44 @@ Main::Main(const c2d::Vector2f &size) : C2DRenderer(size) {
     messageBox->getButton(0)->setOutlineThickness(3);
     messageBox->getButton(1)->setOutlineThickness(3);
     add(messageBox);
+	
+	cpu_meter = new CPU_Meter(this);
 
 }
 
 Main::~Main() {
+	
+	
+	
+	printf("Deinit Config\n");
     delete (config);
+	printf("Deinit Timer\n");
     delete (timer);
-    delete (font);
+	printf("Deinit Player\n");
+    delete (player);
+	printf("Deinit StatusBar\n");
+    delete (statusBar);
+	printf("Deinit Main Menu\n");
+	delete (menu_main);
+	printf("Deinit Menu Video\n");
+	delete (menu_video);
+	printf("Deinit InfoBox\n");
+	delete (infoBox);
+	printf("Deinit Status Box\n");
+	delete (statusBox);
+	printf("Deinit Message Box\n");
+	delete (messageBox);
+	printf("Deinit IO\n");
     delete (pplayIo);
+	printf("Deinit Filer\n");
+    delete (filer);
+	printf("Deinit Font\n");
+    delete (font);
+	delete(cpu_meter);
+	
+	printf("Main Done\n");
+	
+	
 }
 
 bool Main::onInput(c2d::Input::Player *players) {
@@ -303,6 +334,10 @@ StatusBox *Main::getStatus() {
     return statusBox;
 }
 
+CPU_Meter *Main::getCpuMeter(){
+	return cpu_meter;
+}
+
 float Main::getScaling() {
     return scaling;
 }
@@ -349,6 +384,7 @@ int main() {
     delete (main);
 
 #ifdef __SWITCH__
+	ExitCpuMeterServices();
     usbHsFsExit();
 	socketExit();
     appletUnhook(&applet_hook_cookie);

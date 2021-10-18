@@ -35,6 +35,12 @@ void MenuVideoSubmenu::setSelection(int streamType) {
         stream_id = main->getPlayer()->getAudioStream();
     } else if (streamType == MENU_VIDEO_TYPE_SUB) {
         stream_id = main->getPlayer()->getSubtitleStream();
+    } else if (streamType == MENU_VIDEO_TYPE_OVL) {
+        if(main->getPlayer()->isStatusOverlay()){
+			stream_id = 1;
+		}else{
+			stream_id = 0;
+		}
     }
 
     for (auto &button : buttons) {
@@ -65,7 +71,14 @@ void MenuVideoSubmenu::onOptionSelection(MenuItem *item) {
                                     "Loading subtitle stream: " + name + ".\nThis can take a few seconds...");
             main->getPlayer()->setSubtitleStream(item->id);
             setSelection(MENU_VIDEO_TYPE_SUB);
-        }
+        } else if (type == MENU_VIDEO_TYPE_OVL) {
+			if(item->id == 0){
+				main->getPlayer()->setStatusOverlay(false);
+			}else{
+				main->getPlayer()->setStatusOverlay(true);
+			}
+			setSelection(MENU_VIDEO_TYPE_OVL);
+		}
     }
 }
 
